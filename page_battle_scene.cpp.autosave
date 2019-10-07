@@ -1,0 +1,138 @@
+#include "page_battle_scene.h"
+
+#include"scenemanager.h"
+
+#include<QBrush>
+#include<QImage>
+
+extern Scenemanager* scenemanager;
+
+Page_battle_scene::Page_battle_scene()
+{
+
+    setSceneRect(0,0,1280,720);
+    setBackgroundBrush(QBrush(QImage(":/picture/page_battle_base.png")));
+
+    //add background music
+    music_battle_scene = new QMediaPlayer();
+    music_battle_scene->setMedia(QUrl("qrc:/music/battle_1.mp3"));
+    music_battle_scene->play();
+
+    //set towers
+    tower_player = new Minion_battle(1,1);
+    tower_enemy = new Minion_battle(1,2);
+    addItem(tower_player);
+    addItem(tower_enemy);
+
+    //set hero
+    player_hero = new Minion_battle(3,1,scenemanager->deck_player_battle[1],1);
+    player_hero->setPos(100,260);
+    addItem(player_hero);
+    //set deck_player_battle
+    player_deck_1 = new Minion_battle(2,0,scenemanager->deck_player_battle[2]);
+    player_deck_2 = new Minion_battle(2,0,scenemanager->deck_player_battle[3]);
+    player_deck_3 = new Minion_battle(2,0,scenemanager->deck_player_battle[4]);
+    player_deck_4 = new Minion_battle(2,0,scenemanager->deck_player_battle[5]);
+    player_deck_1->setPos(0,590);
+    player_deck_2->setPos(100,590);
+    player_deck_3->setPos(200,590);
+    player_deck_4->setPos(300,590);
+    addItem(player_deck_1);
+    addItem(player_deck_2);
+    addItem(player_deck_3);
+    addItem(player_deck_4);
+
+    //set mana
+    mana = new Text(1);
+    addItem(mana);
+    timer_mana = new QTimer();
+    timer_mana->start(1000);
+    connect(timer_mana,SIGNAL(timeout()),tower_player,SLOT(increase_mana()));
+
+}
+void Page_battle_scene::keyPressEvent(QKeyEvent *event)
+{
+    //hero movement
+    if(event->key() == Qt::Key_Up)
+    {
+        if( player_hero->y()>=20 && player_hero->y()+ 153 <=720 )
+        {
+                player_hero->setPos(player_hero->x(),player_hero->y()-player_hero->minion_speed);
+        }
+    }
+    else if(event->key() == Qt::Key_Down)
+    {
+        if( player_hero->y()>=0 && player_hero->y()+ 153 <=650 )
+        {
+            player_hero->setPos(player_hero->x(),player_hero->y()+player_hero->minion_speed);
+        }
+    }
+    else if(event->key() == Qt::Key_Left)
+    {
+        if( player_hero->x()>=1 && player_hero->x()+ 119 <=1301 )
+        {
+            player_hero->setPos(player_hero->x()-player_hero->minion_speed,player_hero->y());
+        }
+    }
+    else if(event->key() == Qt::Key_Right)
+    {
+        if( player_hero->x()>=0 && player_hero->x()+ 119 <=1300 )
+        {
+            player_hero->setPos(player_hero->x()+player_hero->minion_speed,player_hero->y());
+        }
+    }
+
+    //other minion movement
+    else if(event->key() == Qt::Key_Z)
+    {
+        if(mana->get_mana()>=player_deck_1->minion_mana)
+        {
+            //spawn
+            Minion_battle* minion;
+            minion = new Minion_battle(3,1,scenemanager->deck_player_battle[2],0);
+            minion->setPos(100,260);
+            addItem(minion);
+            //minus mana
+            mana -> mana_decrease(player_deck_1->minion_mana);
+        }
+    }
+    else if(event->key() == Qt::Key_X)
+    {
+        if(mana->get_mana()>=player_deck_2->minion_mana)
+        {
+            //spawn
+            Minion_battle* minion;
+            minion = new Minion_battle(3,1,scenemanager->deck_player_battle[3],0);
+            minion->setPos(100,260);
+            addItem(minion);
+            //minus mana
+            mana -> mana_decrease(player_deck_2->minion_mana);
+        }
+    }
+    else if(event->key() == Qt::Key_C)
+    {
+        if(mana->get_mana()>=player_deck_3->minion_mana)
+        {
+            //spawn
+            Minion_battle* minion;
+            minion = new Minion_battle(3,1,scenemanager->deck_player_battle[4],0);
+            minion->setPos(100,260);
+            addItem(minion);
+            //minus mana
+            mana -> mana_decrease(player_deck_3->minion_mana);
+        }
+    }
+    else if(event->key() == Qt::Key_V)
+    {
+        if(mana->get_mana()>=player_deck_4->minion_mana)
+        {
+            //spawn
+            Minion_battle* minion;
+            minion = new Minion_battle(3,1,scenemanager->deck_player_battle[5],0);
+            minion->setPos(100,260);
+            addItem(minion);
+            //minus mana
+            mana -> mana_decrease(player_deck_4->minion_mana);
+        }
+    }
+}
